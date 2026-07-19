@@ -2,16 +2,11 @@
 
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSeparator,
-  FieldSet,
 } from "@/components/ui/field";
 import { useForm } from "@tanstack/react-form";
-import * as z from "zod";
 import {
   Card,
   CardContent,
@@ -24,41 +19,13 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, "Title must be at least 3 characters.")
-    .max(32, "Title must be at most 32 characters."),
-  description: z
-    .string()
-    .min(20, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters."),
-  category: z.enum([
-    "Housing",
-    "Utilities",
-    "Groceries",
-    "Transportation",
-    "Healthcare",
-    "Dining Out",
-    "Entertainment",
-    "Personal Care",
-    "Clothing",
-    "Gifts",
-    "Debt",
-    "Savings",
-    "Vacation",
-  ]),
-  amount: z.string().regex(/^\d+$/, {
-    message: "String must contain only numbers",
-  }),
-});
+import { categories, Category, formSchema } from "@/lib/validations";
+import { createExpense, updateExpense } from "@/lib/actions";
 
 interface CreateOrModifyCard {
   title: string;
@@ -66,10 +33,11 @@ interface CreateOrModifyCard {
   action: "create" | "edit";
   defaultValues?: {
     title: string;
-    description: string;
-    category: string;
+    description: string | null;
+    category: Category;
     amount: string;
   };
+  id?: number;
 }
 
 export default function CreateOrModifyCard({
@@ -77,19 +45,24 @@ export default function CreateOrModifyCard({
   description,
   action,
   defaultValues,
+  id,
 }: CreateOrModifyCard) {
   const form = useForm({
     defaultValues: {
       title: defaultValues?.title ?? "",
       description: defaultValues?.description ?? "",
-      category: defaultValues?.category ?? "",
+      category: (defaultValues?.category ?? "") as Category,
       amount: defaultValues?.amount ?? "",
     },
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      if (action === "create") {
+        await createExpense(value);
+      } else if (action === "edit" && id) {
+        await updateExpense(value, id);
+      }
     },
   });
 
@@ -162,14 +135,36 @@ export default function CreateOrModifyCard({
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Category</FieldLabel>
-                    <Input
+                    <Select
+                      name={field.name}
+                      value={field.state.value}
+                      onValueChange={(value) =>
+                        field.handleChange((value ?? "") as Category)
+                      }
+                    >
+                      <SelectTrigger
+                        id="form-tanstack-select-language"
+                        aria-invalid={isInvalid}
+                        className="min-w-30"
+                      >
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category, index) => (
+                          <SelectItem key={index} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                    />
+                    /> */}
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
