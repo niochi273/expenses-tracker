@@ -1,17 +1,27 @@
 import CreateOrModifyCard from "@/components/create-or-modify-card";
+import { db } from "@/lib/db";
+import { expenses } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 
 interface EditExpense {
-  searchParams: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }
 
-export default async function EditExpense({ searchParams }: EditExpense) {
-  const { id } = await searchParams;
+export default async function EditExpense({ params }: EditExpense) {
+  const { id } = await params;
+
+  const [expense] = await db
+    .select()
+    .from(expenses)
+    .where(eq(expenses.id, parseInt(id)));
+
+  const { title, description, amount, category } = expense;
 
   const defaultValues = {
-    title: "Bus fare",
-    description: "Bus 170",
-    category: "Transportation",
-    amount: "100",
+    title,
+    description,
+    category,
+    amount,
   };
 
   return (
@@ -21,6 +31,7 @@ export default async function EditExpense({ searchParams }: EditExpense) {
         description="Change expense details in the form"
         action="edit"
         defaultValues={defaultValues}
+        id={parseInt(id)}
       />
     </div>
   );

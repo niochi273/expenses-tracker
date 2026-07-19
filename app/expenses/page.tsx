@@ -11,26 +11,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChartColumnStacked, Clock, SquarePen, Trash2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { db } from "@/lib/db";
+import { expenses } from "@/lib/schema";
+import { DeleteButton } from "@/components/delete-button";
 
-export default function ExpensesPage() {
-  const expenses = [
-    {
-      id: 1,
-      amount: 100,
-      name: "Bus fare",
-      time: "07/18/2026",
-      category: "transport",
-      notes: "Cafe internship",
-    },
-    {
-      id: 2,
-      amount: 100,
-      name: "Bus fare",
-      time: "07/18/2026",
-      category: "transport",
-      notes: "Bus 170 to Novosibirsk",
-    },
-  ];
+export default async function ExpensesPage() {
+  const expensesList = await db.select().from(expenses);
 
   const formatExpenseDate = (dateInput: Date | string) => {
     const date = new Date(dateInput);
@@ -63,18 +49,18 @@ export default function ExpensesPage() {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-background">
-      {expenses.map((expense) => (
+      {expensesList.map((expense) => (
         <Card key={expense.id}>
           <CardHeader>
-            <CardTitle className="text-lg">{expense.name}</CardTitle>
+            <CardTitle className="text-lg">{expense.title}</CardTitle>
             <CardDescription>
-              <span>{expense.notes}</span>
+              <span>{expense.description}</span>
             </CardDescription>
             <CardAction>
               <Button className="cursor-pointer" variant="link">
                 <Link
                   className="flex flex-row items-center gap-1"
-                  href={`/expenses/${expense.id}/edit`}
+                  href={`/expenses/edit/${expense.id}`}
                 >
                   <span>Edit</span>
                   <SquarePen className="size-3" />
@@ -94,14 +80,12 @@ export default function ExpensesPage() {
               <span>
                 <Clock className="size-4 inline" /> Time:
               </span>
-              <span>{formatExpenseDate(expense.time)}</span>
+              <span>{formatExpenseDate(expense.created_at)}</span>
             </p>
           </CardContent>
           <CardFooter>
             <p>Amount: {expense.amount}</p>
-            <Button className="ml-auto" variant="destructive">
-              <Trash2 />
-            </Button>
+            <DeleteButton id={expense.id} />
           </CardFooter>
         </Card>
       ))}
