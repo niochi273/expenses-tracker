@@ -31,7 +31,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full pb-10 flex flex-col">
-        <div className="sticky top-0 right-0 bg-white left-0 flex flex-row justify-between align-center p-4 shadow">
+        <div className="sticky top-0 right-0 bg-white z-100 left-0 flex flex-row justify-between align-center p-4 shadow">
           <Link href="/dashboard">
             <Button variant="link">Dashboard</Button>
           </Link>
