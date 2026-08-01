@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ChartColumnStacked, Clock, SquarePen, Trash2 } from "lucide-react";
+import { ChartColumnStacked, Clock, SquarePen } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
 import { expenses } from "@/lib/schema";
