@@ -25,9 +25,10 @@ export const formSchema = z.object({
     .string()
     .max(100, "Description must be at most 100 characters."),
   category: z.enum(categories, { message: "Select category" }),
-  amount: z.string().regex(/^\d+$/, {
-    message: "String must contain only numbers",
-  }),
+  amount: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Enter an amount like 12 or 12.50")
+    .refine((v) => Number(v) > 0, "Amount must be greater than 0"),
 });
 
 export type Category = (typeof categories)[number];

@@ -187,6 +187,8 @@ export default function CreateOrModifyCard({
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       type="number"
+                      step="0.01"
+                      min="0"
                       aria-invalid={isInvalid}
                     />
                     {isInvalid && (

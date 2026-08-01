@@ -1,4 +1,11 @@
-import { pgTable, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  integer,
+  timestamp,
+  pgEnum,
+  numeric,
+} from "drizzle-orm/pg-core";
 
 export const categoryEnum = pgEnum("category", [
   "Housing",
@@ -22,5 +29,5 @@ export const expenses = pgTable("Expenses", {
   title: text("title").notNull(),
   description: text("description"),
   category: categoryEnum("category").notNull(),
-  amount: text("amount").notNull(),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
 });

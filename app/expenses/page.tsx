@@ -14,9 +14,13 @@ import { Separator } from "@/components/ui/separator";
 import { db } from "@/lib/db";
 import { expenses } from "@/lib/schema";
 import { DeleteButton } from "@/components/delete-button";
+import { desc } from "drizzle-orm";
 
 export default async function ExpensesPage() {
-  const expensesList = await db.select().from(expenses);
+  const expensesList = await db
+    .select()
+    .from(expenses)
+    .orderBy(desc(expenses.created_at));
 
   const formatExpenseDate = (dateInput: Date | string) => {
     const date = new Date(dateInput);
@@ -49,46 +53,50 @@ export default async function ExpensesPage() {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-background">
-      {expensesList.map((expense) => (
-        <Card key={expense.id}>
-          <CardHeader>
-            <CardTitle className="text-lg">{expense.title}</CardTitle>
-            <CardDescription>
-              <span>{expense.description}</span>
-            </CardDescription>
-            <CardAction>
-              <Button className="cursor-pointer" variant="link">
-                <Link
-                  className="flex flex-row items-center gap-1"
-                  href={`/expenses/edit/${expense.id}`}
-                >
-                  <span>Edit</span>
-                  <SquarePen className="size-3" />
-                </Link>
-              </Button>
-            </CardAction>
-            <Separator />
-          </CardHeader>
-          <CardContent className="h-full flex flex-col justify-end">
-            <p className="flex flex-row capitalize justify-between">
-              <span>
-                <ChartColumnStacked className="size-4 inline" /> Category:
-              </span>
-              <span>{expense.category}</span>
-            </p>
-            <p className="flex flex-row capitalize justify-between text-end">
-              <span>
-                <Clock className="size-4 inline" /> Time:
-              </span>
-              <span>{formatExpenseDate(expense.created_at)}</span>
-            </p>
-          </CardContent>
-          <CardFooter>
-            <p>Amount: {expense.amount}</p>
-            <DeleteButton id={expense.id} />
-          </CardFooter>
-        </Card>
-      ))}
+      {expensesList.length === 0 ? (
+        <p>No expenses yet</p>
+      ) : (
+        expensesList.map((expense) => (
+          <Card key={expense.id}>
+            <CardHeader>
+              <CardTitle className="text-lg">{expense.title}</CardTitle>
+              <CardDescription>
+                <span>{expense.description}</span>
+              </CardDescription>
+              <CardAction>
+                <Button className="cursor-pointer" variant="link">
+                  <Link
+                    className="flex flex-row items-center gap-1"
+                    href={`/expenses/edit/${expense.id}`}
+                  >
+                    <span>Edit</span>
+                    <SquarePen className="size-3" />
+                  </Link>
+                </Button>
+              </CardAction>
+              <Separator />
+            </CardHeader>
+            <CardContent className="h-full flex flex-col justify-end">
+              <p className="flex flex-row capitalize justify-between">
+                <span>
+                  <ChartColumnStacked className="size-4 inline" /> Category:
+                </span>
+                <span>{expense.category}</span>
+              </p>
+              <p className="flex flex-row capitalize justify-between text-end">
+                <span>
+                  <Clock className="size-4 inline" /> Time:
+                </span>
+                <span>{formatExpenseDate(expense.created_at)}</span>
+              </p>
+            </CardContent>
+            <CardFooter>
+              <p>Amount: {expense.amount}</p>
+              <DeleteButton id={expense.id} />
+            </CardFooter>
+          </Card>
+        ))
+      )}
     </div>
   );
 }
