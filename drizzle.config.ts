@@ -4,7 +4,7 @@ config({ path: ".env.local" });
 import { defineConfig } from "drizzle-kit";
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set in .env.local");
+  throw new Error("DATABASE_URL is not set in .env");
 }
 
 // ...rest of config unchanged
